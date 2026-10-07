@@ -146,5 +146,5 @@ documentation website, and a PyPI release. Questions, issues and contributions a
 
 ## Citation and license
 
-If you use EvoScope, please cite the paper above (see `CITATION.cff`). License: to be
-decided before the public release.
+If you use EvoScope, please cite the paper above (see `CITATION.cff`). EvoScope is
+released under the [MIT License](LICENSE).

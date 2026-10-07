@@ -7,6 +7,7 @@ name = "evoscope"
 version = "0.2.0.dev0"
 description = "Operator calculus for population-based optimization: numerical checks of new operators, attribution of performance to operators, algorithm-level checks, and discovery guarantees"
 readme = "README.md"
+license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
     {name = "Pekka Malo"}, {name = "Lauri Viitasaari"}, {name = "Patrik Nummi"},
@@ -17,9 +18,14 @@ keywords = ["evolutionary computation", "population-based optimization", "mean-f
             "Lyapunov convergence", "finite-population guarantees"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Intended Audience :: Science/Research",
 ]
+
+[project.urls]
+Repository = "https://github.com/pma-papers/evoscope"
+Documentation = "https://github.com/pma-papers/evoscope/tree/main/docs"
 
 [project.optional-dependencies]
 test = ["pytest>=7"]
