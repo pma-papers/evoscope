@@ -108,6 +108,11 @@ and checks the estimate on fresh populations. A negative estimate tells you whic
 operator is responsible, at which populations. The estimate is evidence about populations
 like the sampled ones, so sample populations from your runs, not only initial ones.
 
+For gradient descent the rate at a population is `E|grad f|^2 / E[f - f*]`, and the drift
+coefficient over all populations is the constant `2 mu` of the Polyak-Lojasiewicz inequality
+`|grad f|^2 >= 2 mu (f - f*)`; with noise added, the rate is positive only above a floor
+([Tutorial 6](../tutorials/06_gradient_methods.py)).
+
 *In the toolbox:* `attribution.estimate_drift_coefficient`, `attribution.validate`,
 `attribution.residual_constant` (when the rate is positive only above a floor).
 

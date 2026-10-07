@@ -80,5 +80,40 @@ class Runs(unittest.TestCase):
         viz.plot_contrast(g, np.zeros(31), -np.ones(31), np.ones(31))
 
 
+class GradientMethods(unittest.TestCase):
+    """Gradient descent as a one-operator special case (Tutorial 6)."""
+    a = np.array([1., 2., 4., 8.])
+
+    def quadratic(self):
+        a = self.a
+        return Observable(lambda x: .5*np.sum(a*x*x, axis=-1), lambda x: a*x,
+                          lambda x: np.full(np.shape(x)[:-1], a.sum()),
+                          lambda m, v: .5*np.sum(a*m*m, axis=-1)+.5*v*a.sum())
+
+    def test_population_of_one_is_gradient_descent(self):
+        f = self.quadratic()
+        x = np.array([[2., -1., .5, .3]])
+        pop = Population.uniform(x.copy())
+        for _ in range(10):
+            x = x-.05*f.gradient(x)
+            pop = Drift(lambda y: -f.gradient(y)).step(pop, .05)
+        np.testing.assert_allclose(pop.points, x)
+
+    def test_drift_coefficient_is_at_least_the_pl_constant(self):
+        f, rng = self.quadratic(), np.random.default_rng(0)
+        pops = [Population.uniform(rng.normal(size=(32, 4))*s) for s in (np.array([2., .3, .2, .1]), 1.) for _ in range(16)]
+        rates = attribution.coefficients(Assembly([Drift(lambda y: -f.gradient(y))]), pops, f)["total"]
+        self.assertGreaterEqual(rates.min(), 2*self.a.min()-1e-12)
+        self.assertLess(rates.min(), 2.5*self.a.min())       # stretched populations come close to 2 mu
+
+    def test_noisy_gradient_descent_residual_constant(self):
+        f, rng, sigma = self.quadratic(), np.random.default_rng(1), .5
+        pops = [Population.uniform(rng.normal(size=(32, 4))*s) for s in (.01, .1, 1.) for _ in range(8)]
+        result = attribution.coefficients(Assembly([Drift(lambda y: -f.gradient(y)), GaussianNoise(sigma)]), pops, f)
+        c = attribution.residual_constant(result["generator"], result["V"], 2*self.a.min())
+        self.assertLessEqual(c, sigma**2*self.a.sum()/2+1e-12)   # by hand: G + 2 mu V <= sigma^2 tr(A)/2
+        self.assertGreater(c, .9*sigma**2*self.a.sum()/2)
+
+
 if __name__ == "__main__":
     unittest.main()

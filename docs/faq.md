@@ -17,6 +17,16 @@ describes the small-`tau` behaviour, and the composition check shows how far tha
 description extends. If you prefer not to rewrite anything, use the algorithm-level
 checks.
 
+### Does this apply to gradient descent?
+
+Yes. Gradient descent is a `Drift` with `b(x) = -grad f(x)` and step size equal to the
+learning rate; a population of one individual reproduces it exactly, and several
+individuals give multi-start gradient descent. Its drift coefficient is the constant of
+the Polyak-Lojasiewicz inequality, the moment-stability check plays the role of its step-size condition,
+and adding `GaussianNoise` gives noisy gradient descent with a floor described by the
+residual form. Tutorial 6 works through these cases and combines gradient steps with
+selection.
+
 ### Which populations should I use for the checks?
 
 Several of each kind your algorithm meets: broad clouds at the start, clustered

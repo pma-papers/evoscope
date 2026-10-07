@@ -52,7 +52,7 @@ report.plot("check.png")     # diagnostic panels
   [implemented algorithm](guide-algorithm.md).
 * [Reading the reports](reading-reports.md): every check, what it tests, what each verdict
   means, what to do about it.
-* [Tutorials](../tutorials/): five runnable walk-throughs (scripts, and notebooks in
+* [Tutorials](../tutorials/): six runnable walk-throughs (scripts, and notebooks in
   `tutorials/notebooks/`), with the figures shown in these pages.
 * [FAQ](faq.md) and [API overview](api.md).
 * [Theory map](theory-map.md): which result of the paper each check relates to, and what
