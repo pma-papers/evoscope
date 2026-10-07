@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evoscope"
+version = "0.2.0.dev0"
+description = "Operator calculus for population-based optimization: numerical checks of new operators, attribution of performance to operators, algorithm-level checks, and discovery guarantees"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Pekka Malo"}, {name = "Lauri Viitasaari"}, {name = "Patrik Nummi"},
+    {name = "Antti Suominen"}, {name = "Ankur Sinha"}, {name = "Olli Tahvonen"},
+]
+dependencies = ["numpy>=1.24", "scipy>=1.10", "matplotlib>=3.7"]
+keywords = ["evolutionary computation", "population-based optimization", "mean-field analysis",
+            "Lyapunov convergence", "finite-population guarantees"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Intended Audience :: Science/Research",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

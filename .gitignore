@@ -1,0 +1,9 @@
+__pycache__/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+# example outputs
+examples/*.pdf
+# outputs of the tutorials when run from a notebook folder
+tutorials/notebooks/*.png
