@@ -91,16 +91,40 @@ worse well, multi-start gradient descent stalls when some starts end in the wors
 adding selection drives the mean gap to zero, and the attribution shows the hand-over from
 the gradient step to selection. See [Tutorial 6](tutorials/06_gradient_methods.py).
 
-## Three ways in
+## Four ways in
 
 | You have | EvoScope tells you | Start with | Guide | Tutorial |
 |---|---|---|---|---|
 | an idea for a new operator | whether it passes the four checks, and if not, what to change | `checks.check_operator` | [guide](docs/guide-operator.md) | [02](tutorials/02_checking_a_new_operator.py) |
 | operators to combine, or a new operator for an existing algorithm | whether the contributions add up, what each operator contributes on the populations your algorithm meets, the discovery guarantee | `checks.check_assembly`, `attribution`, `algorithm.ablation_runs` | [guide](docs/guide-assembly.md) | [03](tutorials/03_from_operators_to_an_algorithm.py) |
 | an algorithm that already runs (ask/tell interface), not split into operators | failure diagnostics, how much one generation improves the population, what switching a component off changes along whole runs, the discovery guarantee | `algorithm.check_algorithm` | [guide](docs/guide-algorithm.md) | [04](tutorials/04_black_box_algorithm.py) |
+| operators whose joint dynamics you want to understand | how the population evolves, which operator drives which change along the run, what kind of term each operator contributes | `evolution.flow`, `evolution.ledger`, `evolution.fingerprint` | [guide](docs/guide-evolution.md) | [07](tutorials/07_the_evolution_equation.py)-[09](tutorials/09_operator_fingerprints.py) |
 
 New here? Read [the concepts in plain language](docs/concepts.md), then
 [Tutorial 1](tutorials/01_first_steps.py).
+
+## Seeing the evolution equation
+
+![Terms of the evolution equation in two dimensions](docs/figures/t7_maps_2d.png)
+
+For small steps an assembly moves its population along the solution of an evolution
+equation in which every operator contributes one term, and the terms come in four kinds:
+**reaction** (selection reweights individuals where they are), **transport** (a drift
+moves them), **diffusion** (noise spreads them) and **jumps** (recombination replaces them
+by new individuals, possibly far away). The figure shows the four terms of an algorithm
+on a problem with four minima, at three times: red where an operator adds mass, blue where
+it removes it. Once the population sits in four clusters, drift and noise balance inside
+each cluster, while recombination puts mass on the midpoints between the clusters, far
+from any minimum, and selection removes it again.
+
+In many dimensions the same terms are seen through **views**: the mean gap and the
+spread, the share of the population below every objective level, the variances along
+the principal axes. A **ledger** adds up each operator's term along a run, so that every
+change of these quantities is attributed to the operators. **Fingerprints** tell which
+kinds of term an operator contributes, also for an operator known only through its code.
+See the [guide](docs/guide-evolution.md) and Tutorials
+[7](tutorials/07_the_evolution_equation.py), [8](tutorials/08_watching_a_population_evolve.py)
+and [9](tutorials/09_operator_fingerprints.py).
 
 ## The four checks on an operator
 
@@ -206,16 +230,19 @@ or any update function. No derivatives or formulas are needed.
 |---|---|
 | [Start here](docs/index.md) | which situation you are in, and a five-minute start |
 | [Concepts](docs/concepts.md) | populations, operators, step sizes, effects, error measures, drift coefficients, discovery guarantees, in plain language |
-| Guides | [checking a new operator](docs/guide-operator.md), [combining operators](docs/guide-assembly.md), [checking an implemented algorithm](docs/guide-algorithm.md) |
+| Guides | [checking a new operator](docs/guide-operator.md), [combining operators](docs/guide-assembly.md), [checking an implemented algorithm](docs/guide-algorithm.md), [the evolution equation, term by term](docs/guide-evolution.md) |
 | [Reading the reports](docs/reading-reports.md) | every check: what it tests, what each verdict means, what to do |
 | [FAQ](docs/faq.md), [API](docs/api.md) | questions, and the API at a glance |
-| [Tutorials](tutorials/) | six runnable walk-throughs, also as notebooks in `tutorials/notebooks/` |
+| [Tutorials](tutorials/) | nine runnable walk-throughs, also as notebooks in `tutorials/notebooks/` |
 
 The tutorials: (1) what each operator does; (2) taking an operator idea through three
 versions until it passes every check; (3) adding a new operator to an existing algorithm
 and measuring what it adds; (4) checking an algorithm written without EvoScope;
 (5) discovery guarantees in practice; (6) gradient descent, noisy gradient descent and
-multi-start gradient descent as special cases.
+multi-start gradient descent as special cases; (7) the evolution equation and its terms in
+one and two dimensions; (8) watching a population evolve in many dimensions: ledgers,
+objective levels and shape; (9) the kind of term each operator contributes, and what
+follows from it.
 
 ## Background
 
@@ -243,6 +270,7 @@ src/evoscope/      the package
   checks.py          operator- and assembly-level checks
   algorithm.py       ask/tell interface, runs with probes, algorithm-level checks, ablation
   attribution.py     effects of operators, drift coefficients, validation
+  evolution.py       the evolution equation term by term: views, flows, ledgers, operator fingerprints
   discovery.py       the discovery guarantee
   report.py          reports with verdicts and plain-language explanations
   population.py, problems.py, testfunctions.py, metrics.py, contrasts.py, viz.py

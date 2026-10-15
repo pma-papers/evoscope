@@ -20,6 +20,12 @@ depend on a particular version of the paper.
 | `algorithm.check_small_step` | composition theorem, applied to the whole update | the update is a small-step operator | settling of the per-unit-step change of the proposal gap |
 | `attribution.consistency` | composition theorem; consistency checks of the numerical study | | finite-step quotient against the generator at one population |
 | `contrasts.paired_contrasts`, `algorithm.ablation_runs` | dynamic contrasts of the numerical study | | run-wise differences from matched starts, bootstrap bands |
+| `evolution.term_rates` with a view | general evolution equation (weak form), with the generator of the composition theorem | the equation for every test function in `C_b^3` | the component actions on the chosen family of test functions (moments and the objective are unbounded tests, as in the Lyapunov principle) |
+| `evolution.ledger` | definition of a weak solution: `<phi, mu_t> - <phi, mu_s>` is the time integral of `G[mu_u](phi)` | a solution of the equation | the integral of the terms along a particle flow against the observed change; the difference shows splitting and sampling errors |
+| `evolution.level_view` | concentration conclusions of the mean-field convergence theorem (`p_eps(t)`) | | the smoothed share of the population within `c` of the optimal value, and each operator's term for it |
+| `evolution.TRJ1D` | transport-reaction-jump decomposition | the balanced TRJ equation | a finite-volume solution in one dimension, term by term |
+| `evolution.local_characteristics`, `fingerprint` | canonical operator classes and their generators (mutation, selection, recombination) | | not a result of the paper: a numerical read-off of growth rate, drift, diffusion and innovation, exact for the canonical forms |
+| `evolution.flow` | splitting and its first-order consistency (composition theorem) | | a weighted-particle approximation of the solution; it is neither a proof of existence nor of convergence of finite steps |
 
 ## What a numerical check cannot establish
 

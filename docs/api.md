@@ -15,6 +15,19 @@ Every function has a docstring with the details (`help(evoscope.checks.check_ope
 | | `estimate_generator` | the effect of any operator, estimated from finite steps |
 | | `paper_assembly`, `normalized_fd_drift`, `objective_rate` | the operators of the paper's study |
 
+## The evolution equation
+
+| Name | Purpose |
+|---|---|
+| `evolution.flow(assembly, initial, tau, t_end, rng, size=, record=, resample=)` | follow the evolution equation with weighted particles; returns a `Flow` (`times`, `populations`) |
+| `evolution.term_rates(assembly, population, view)` | every operator's term, seen through a view |
+| `evolution.summary_view`, `level_view`, `spread_view`, `mean_view`, `density_view`, `View` | views: families of test functions |
+| `evolution.ledger(assembly, flow, view)` | terms along a flow, their time integrals, and the observed change |
+| `evolution.local_characteristics(op, population)` | growth rate, drift and diffusion of an operator at every individual |
+| `evolution.innovation_rate(op, population, radius)` | mass an operator places away from the population, per unit time |
+| `evolution.fingerprint(operators, population, objective=)`, `format_fingerprint` | the kinds of term each operator contributes, and its effects |
+| `evolution.TRJ1D(assembly, grid)` | the equation on a grid in one dimension: `terms`, `solve`, `population`, `density` |
+
 ## Checks and reports
 
 | Function | Level | Returns |
@@ -53,3 +66,4 @@ check name; a `Finding` has `check`, `reference`, `statistic`, `verdict`, `meani
 | `evoscope.metrics` | `w2`, `bl_lower`, `d_star` (distances between populations) |
 | `evoscope.testfunctions` | `battery`, `gaussian_bump`, `cosine_wave`, `truncated` |
 | `evoscope.viz` | `plot_component_coefficients`, `plot_drift_estimates`, `plot_residual_form`, `plot_consistency`, `plot_discovery`, `plot_contrast`, `paper_style` |
+| | `plot_ledger`, `plot_levels`, `plot_level_terms`, `plot_density_flow`, `plot_density_terms`, `plot_term_map`, `plot_characteristics`, `operator_colors` (the evolution equation) |

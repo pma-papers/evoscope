@@ -13,6 +13,7 @@ operators     operator wrappers (Transport, Reweighting, Jump, StepOperator), ca
 checks        operator- and assembly-level checks (conditions A1-A4, composition, cutoff, drift coefficient)
 algorithm     ask/tell interface, runs with probes, algorithm-level checks, ablation
 attribution   effects of operators, drift coefficients, validation, residual form, consistency
+evolution     the evolution equation term by term: views, flows, ledgers, operator fingerprints, 1-D solver
 discovery     the measured discovery bound
 report        reports with verdicts and plain-language explanations
 population    weighted populations
@@ -20,7 +21,7 @@ problems      the paper's test problems
 testfunctions, metrics, contrasts, viz
 criterion, band, modulus, runs   the evaluation criterion of the paper and the study's runner
 """
-from . import (algorithm, attribution, band, checks, contrasts, criterion, discovery, metrics, modulus,
+from . import (algorithm, attribution, band, checks, contrasts, criterion, discovery, evolution, metrics, modulus,
                operators, population, problems, report, runs, testfunctions)
 from .operators import (Assembly, Drift, GaussianNoise, Jump, Observable, Recombination, Reweighting, Selection,
                         StepOperator, Transport, paper_assembly)

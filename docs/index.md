@@ -19,6 +19,7 @@ map](theory-map.md) points to the paper for those who want the details.
 | an idea for a new operator (a mutation, selection, crossover, or anything that updates a population) | `check_operator` | [Checking a new operator](guide-operator.md) |
 | several operators you want to combine, or a new operator to add to an existing algorithm | `check_assembly`, attribution, discovery bound | [Combining operators](guide-assembly.md) |
 | an algorithm that already runs, and no wish to split it into parts | `check_algorithm` | [Checking an implemented algorithm](guide-algorithm.md) |
+| operators whose joint dynamics you want to understand: how the population evolves and which operator drives which change | `evolution.flow`, `ledger`, `fingerprint` | [The evolution equation, term by term](guide-evolution.md) |
 
 The three entry points fit the way algorithms are usually developed: try an operator idea
 cheaply, combine operators and see what each one contributes, and assess the finished
@@ -49,10 +50,11 @@ report.plot("check.png")     # diagnostic panels
 * [Concepts in plain language](concepts.md): populations, operators, step sizes, effects,
   error measures, drift coefficients, discovery guarantees. **Read this first.**
 * Guides: [new operator](guide-operator.md), [combining operators](guide-assembly.md),
-  [implemented algorithm](guide-algorithm.md).
+  [implemented algorithm](guide-algorithm.md), [the evolution equation, term by
+  term](guide-evolution.md).
 * [Reading the reports](reading-reports.md): every check, what it tests, what each verdict
   means, what to do about it.
-* [Tutorials](../tutorials/): six runnable walk-throughs (scripts, and notebooks in
+* [Tutorials](../tutorials/): nine runnable walk-throughs (scripts, and notebooks in
   `tutorials/notebooks/`), with the figures shown in these pages.
 * [FAQ](faq.md) and [API overview](api.md).
 * [Theory map](theory-map.md): which result of the paper each check relates to, and what

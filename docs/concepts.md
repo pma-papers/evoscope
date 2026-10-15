@@ -68,6 +68,32 @@ separate effects. Two consequences matter in practice:
 `attribution.coefficients` computes every operator's contribution over many populations;
 `checks.check_composition` checks that the effects add up.
 
+## The evolution equation and its four kinds of terms
+
+Because effects add up, an assembly applied with a small step moves its population along
+the solution of an **evolution equation**: the population average of any smooth function
+changes at the rate given by the sum of the operators' effects on it. Each operator
+contributes one **term** to this equation, and the terms come in four kinds:
+
+* **reaction**: individuals keep their place and their weights change (selection);
+* **transport**: individuals move continuously along a direction (a drift);
+* **diffusion**: individuals spread by small random steps (Gaussian noise);
+* **jump**: individuals are replaced by new ones, possibly far away (recombination,
+  differential variation, restarts, heavy-tailed mutation).
+
+The kind decides much of what an operator can do: a reaction cannot create points that
+are not in the population, a diffusion always costs on a convex objective, and only a
+jump puts mass far from the population at once. Choosing which averages to look at (the
+mean gap, the share of the population below each objective level, the variances along
+principal axes, a density in one or two directions) is choosing a **view** of the
+equation.
+
+*In the toolbox:* `evolution.flow` (follow the equation with many particles),
+`evolution.term_rates` and the views (`summary_view`, `level_view`, `spread_view`,
+`density_view`), `evolution.ledger` (the terms along a run and how much of the change
+each operator accounts for), `evolution.fingerprint` (which kinds of term an operator
+contributes), `evolution.TRJ1D` (the equation on a grid in one dimension).
+
 ## The four conditions on an operator
 
 | Condition | Question | Typical way to fail |
