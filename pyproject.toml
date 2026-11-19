@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evoscope"
-version = "0.2.0.dev1"
+version = "0.2.0"
 description = "Operator calculus for population-based optimization: numerical checks of new operators, attribution of performance to operators, algorithm-level checks, and discovery guarantees"
 readme = "README.md"
 license = {text = "MIT"}

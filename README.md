@@ -290,7 +290,7 @@ python -m unittest discover -s tests       # about 10 seconds; pytest also works
 
 ## Status
 
-Version 0.2.0.dev1, under active development. Planned: ready-made wrappers for common
+Version 0.2.0, under active development. Planned: ready-made wrappers for common
 algorithms (CMA-ES-type, recombinative ES, consensus-based optimization) with their known
 guarantees, examples with popular libraries through the ask/tell interface, a
 documentation website, and a PyPI release. Questions, issues and contributions are welcome.
