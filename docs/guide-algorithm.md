@@ -87,6 +87,26 @@ variant), and `ablation_runs` follows the variants along whole runs from the sam
 
 ![Ablation along runs](figures/t4_ablation.png)
 
+To score the **updated state** after one generation, pass `state_score` to `check_ablation`.
+For example, if `state.values` holds the cached objective values of the current population:
+
+```python
+finding = algorithm.check_ablation(
+    variants, "full", f, states, rng, inner=16, seed=42,
+    state_score=lambda state: state.values.mean(),
+)
+paired_scores = finding.data["scores"]  # variant name -> saved states × replays
+```
+
+Use a score where smaller is better. Each replay evaluates one trial batch and starts
+from a copy of the saved state. The state score uses the result of `tell` and skips
+the next proposal batch. Each replay seed is shared across variants, so keeping their
+random draws in the same order lets them use the same donors or perturbations.
+Set `steps` to compare decisions whose effects take several generations to play
+out, such as a restart. The score is computed at the end of each replay, and the
+replay evaluates one batch per generation. Compare variants with equal objective
+evaluation costs when the decision has a fixed evaluation budget.
+
 ## Step 4 (optional): a step-size parameter
 
 If the update can be made smaller with a parameter `tau` (with `tau = 0` meaning "keep the

@@ -27,4 +27,4 @@ from .operators import (Assembly, Drift, GaussianNoise, Jump, Observable, Recomb
                         StepOperator, Transport, paper_assembly)
 from .population import Population
 
-__version__ = "0.2.0.dev0"
+__version__ = "0.2.0.dev1"

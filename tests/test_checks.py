@@ -105,6 +105,63 @@ def es(mu=8, lam=32, sigma=.3, recombine=True):
 
 
 class AlgorithmChecks(unittest.TestCase):
+    def test_state_score_replays_are_paired_and_leave_saved_states_unchanged(self):
+        evaluations = []
+
+        def objective(candidates):
+            evaluations.append(len(candidates))
+            return candidates
+
+        def variant(offset, extra_draws):
+            def ask(state, size, rng):
+                state[0] += 1
+                candidates = rng.random(size)
+                rng.random(extra_draws)
+                return candidates
+
+            def tell(state, candidates, values, rng):
+                state[0] += values[0] + offset
+                return state
+
+            return algorithm.FunctionalAlgorithm(None, ask, tell, 1)
+
+        states = [[10.], [20.]]
+        variants = {'reference': variant(0, 0), 'changed': variant(2, 9)}
+        finding = algorithm.check_ablation(variants, 'reference', objective, states, None, inner=4,
+                                           state_score=lambda state: state[0])
+        reference = finding.data['scores']['reference']
+        changed = finding.data['scores']['changed']
+        self.assertEqual(reference.shape, (2, 4))
+        self.assertEqual(evaluations, [1] * 16)
+        self.assertEqual(states, [[10.], [20.]])
+        np.testing.assert_allclose(changed - reference, 2.)
+        np.testing.assert_allclose(finding.data['effects']['changed'], [2., 2.])
+        self.assertEqual(np.unique(reference[0]).size, 4)
+
+    def test_multigeneration_replay_scores_the_final_state(self):
+        evaluations = []
+
+        def objective(candidates):
+            evaluations.append(len(candidates))
+            return candidates[:, 0]
+
+        def variant(increment):
+            def ask(state, size, rng):
+                return np.full((size, 1), state + increment)
+
+            def tell(state, candidates, values, rng):
+                return values[0]
+
+            return algorithm.FunctionalAlgorithm(None, ask, tell, 2)
+
+        variants = {'reference': variant(1.), 'changed': variant(3.)}
+        finding = algorithm.check_ablation(variants, 'reference', objective, [10.], None,
+                                           inner=2, state_score=float, steps=3)
+        self.assertEqual(finding.check, 'ingredient effects after 3 generations')
+        self.assertEqual(evaluations, [2] * 12)
+        np.testing.assert_array_equal(finding.data['scores']['reference'], [[13., 13.]])
+        np.testing.assert_array_equal(finding.data['scores']['changed'], [[19., 19.]])
+
     def test_black_box_es(self):
         f = problems.get("separable_pl_d4")
         report = algorithm.check_algorithm(es(), f.value, level=.1, rng=np.random.default_rng(0), generations=40,

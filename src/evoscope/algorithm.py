@@ -197,14 +197,22 @@ def proposal_gap(alg, state, objective, rng, size=256, f_star=0.):
     return float(np.mean(objective(alg.ask(state, size, rng, probe=True))))-f_star
 
 
-def _next_gaps(alg, state, objective, rng, inner, size, f_star):
+def _next_scores(alg, state, objective, generators, score, steps=1):
     vals = []
-    for _ in range(inner):
+    for rng in generators:
         s = alg.copy_state(state)
-        X = alg.ask(s, alg.batch_size, rng)
-        s = alg.tell(s, X, objective(X), rng)
-        vals.append(proposal_gap(alg, s, objective, rng, size, f_star))
+        for _ in range(steps):
+            X = alg.ask(s, alg.batch_size, rng)
+            s = alg.tell(s, X, objective(X), rng)
+        vals.append(float(score(alg, s, rng)))
     return np.array(vals)
+
+
+def _next_gaps(alg, state, objective, rng, inner, size, f_star, steps=1):
+    def score(alg, updated, rng):
+        return proposal_gap(alg, updated, objective, rng, size, f_star)
+
+    return _next_scores(alg, state, objective, (rng for _ in range(inner)), score, steps)
 
 
 # ----------------------------------------------------------------------------- checks
@@ -282,23 +290,45 @@ def check_discovery(results, batch, level, delta=.05, n_probe=None):
                    {"bound": bound, "floor": floor, "observed": observed})
 
 
-def check_ablation(variants, reference, objective, states, rng, inner=16, size=256, f_star=0., seed=0):
-    """One-generation effect of each switchable ingredient.
+def check_ablation(variants, reference, objective, states, rng, inner=16, size=256, f_star=0., seed=0,
+                   *, state_score=None, steps=1):
+    """Effect of each switchable ingredient over a fixed number of generations.
 
     ``variants``: dict name -> Algorithm, sharing the state format; ``reference``: the name
-    of the full algorithm.  For every state and variant the mean gap after one generation is
-    estimated with the same random numbers (common seeds), and the difference variant minus
-    reference is averaged: positive means that removing or changing the ingredient makes the
-    next generation worse in mean gap."""
+    of the full algorithm. By default the score is the mean gap of proposals drawn from the
+    state after ``steps`` generations. Pass ``state_score(updated_state) -> float`` to score
+    that state directly and skip those proposal draws. Lower scores are better. For an
+    equal evaluation budget, use variants with the same batch size and count any additional
+    evaluations that their updates perform.
+
+    Every replay starts from a copy of the saved state. With ``state_score``, each replay
+    has a fresh seed shared by all variants. Variants that draw randomness in the same
+    order can thereby share the same random inputs. ``data['scores'][name]`` contains the
+    scores in input-state by replay order, including the reference. ``data['effects']``
+    contains the per-state average of variant minus reference for each non-reference variant.
+    Replay seeds are determined by ``seed``."""
+    if steps < 1:
+        raise ValueError("steps must be positive")
     names = [n for n in variants if n != reference]
-    effects = {n: [] for n in names}
-    for i, s in enumerate(states):
-        def gap_after(alg):
-            g = np.random.default_rng([seed, i])
-            return _next_gaps(alg, s, objective, g, inner, size, f_star).mean()
-        base = gap_after(variants[reference])
-        for n in names:
-            effects[n].append(gap_after(variants[n])-base)
+    if state_score is None:
+        def replay(alg, state, index):
+            rng = np.random.default_rng([seed, index])
+            return _next_gaps(alg, state, objective, rng, inner, size, f_star, steps)
+    else:
+        def score(_alg, updated, _rng):
+            return state_score(updated)
+
+        def replay(alg, state, index):
+            generators = (np.random.default_rng([seed, index, j]) for j in range(inner))
+            return _next_scores(alg, state, objective, generators, score, steps)
+
+    scores = {name: [] for name in (reference, *names)}
+    for i, state in enumerate(states):
+        for name, rows in scores.items():
+            rows.append(replay(variants[name], state, i))
+    scores = {name: np.asarray(rows).reshape(-1, inner) for name, rows in scores.items()}
+    means = {name: rows.mean(axis=1) for name, rows in scores.items()}
+    effects = {n: (means[n]-means[reference]).tolist() for n in names}
     summary = {n: (float(np.mean(v)), float(np.std(v, ddof=1)/np.sqrt(len(v))) if len(v) > 1 else 0.)
                for n, v in effects.items()}
     stat = "; ".join(f"{n}: {m:+.3g} (se {se:.2g})" for n, (m, se) in summary.items())
@@ -307,8 +337,17 @@ def check_ablation(variants, reference, objective, states, rng, inner=16, size=2
                "mean the ingredient that the variant removes or changes helps the mean gap per generation; "
                "negative values mean it costs mean gap (it may still help discovery: compare runs with "
                "ablation_runs, which follows the effect along whole runs).")
-    return Finding("ingredient effects per generation", "attribution of effects", stat, "info", meaning,
-                   {"effects": effects, "summary": summary})
+    if state_score is not None:
+        horizon = 'one generation' if steps == 1 else f'{steps} generations'
+        meaning = ("Difference in the score of the updated state, variant minus reference, averaged over "
+                   f"the states examined. A positive value means the variant has a worse score after {horizon}.")
+    elif steps != 1:
+        meaning = ("Difference in the mean objective gap of the proposals, variant minus reference, "
+                   f"averaged over the states examined after {steps} generations. A positive value means "
+                   "the variant has a worse mean gap.")
+    name = "ingredient effects per generation" if steps == 1 else f"ingredient effects after {steps} generations"
+    return Finding(name, "attribution of effects", stat, "info", meaning,
+                   {"effects": effects, "summary": summary, "scores": scores})
 
 
 def ablation_runs(variants, reference, objective, generations, repetitions, seed=0, bootstrap=2000, **kwargs):
